@@ -1,5 +1,5 @@
 import socketClient from "socket.io-client"
-
+import Chat from "./chat/Chat"
 const SERVER = "http://localhost:8080"
 
 function App() {
@@ -10,6 +10,7 @@ function App() {
 
   return (
     <div className="App">
+      <Chat/>
     </div>
   );
 }
