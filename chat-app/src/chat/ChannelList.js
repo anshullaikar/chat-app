@@ -12,7 +12,7 @@ export class ChannelList extends React.Component{
         }
 
         return (
-        <div>
+        <div className = "channel-list">
             {list}
         </div>)
     }
