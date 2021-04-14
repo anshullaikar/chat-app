@@ -7,14 +7,18 @@ export class Chat extends React.Component{
 
     state = {
         channels: [],
-        currentChat:{},
+        currentChat:{
+            person:{
+                username:"Wait"
+            }
+        },
         username:"",
         messageList:[]
     }
 
     componentDidMount = ()=>{
         console.log("Hello");
-        fetch('/getChannels?username='+this.props.username).
+        fetch('/getChannels?username='+this.props.username+'&&category='+this.props.category).
         then(res=>res.json())
         .then((result)=>{
             console.log("heyyyy",result);
@@ -22,18 +26,18 @@ export class Chat extends React.Component{
             this.setState({currentChat:result.info[0]})
             this.setState({username:this.props.username});
             // this.setState({messageList:result.info[0].messageList})
-            this.getMessages(this.state.currentChat._id);
+            this.getMessages(this.state.currentChat);
         })
     }
 
     changeCurrentChat = (newChat)=>{
         console.log("Changing:",newChat)
         this.setState({currentChat:newChat})
-        this.getMessages(newChat._id);
+        this.getMessages(newChat);
     }
 
-    getMessages = (id)=>{
-        fetch('/getMessages?id='+id).
+    getMessages = (chat)=>{
+        fetch('/getMessages?id='+chat.chat).
         then(res=>res.json())
         .then((result)=>{
             console.log("heyyyy",result);
@@ -54,11 +58,16 @@ export class Chat extends React.Component{
           });
     }
 
+    testing = ()=>{
+        console.log("The states are: ",this.state);
+    }
+
     render(){
         return (
             <div className = "chat-app">
+                {/* <button onClick = {this.testing}>Test</button> */}
                 <ChannelList channels ={this.state.channels} changeCurrentChat = {this.changeCurrentChat} />
-                <MessagePanel currentChat = {this.state.currentChat} updateMessage = {this.updateMessage} messageList = {this.state.messageList} username = {this.props.username} socket = {this.props.socket}/>
+                <MessagePanel currentChat = {this.state.currentChat} updateMessage = {this.updateMessage} messageList = {this.state.messageList} username = {this.props.username} socket = {this.props.socket} category = {this.props.category}/>
             </div>
         )
     }

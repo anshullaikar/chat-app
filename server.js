@@ -5,9 +5,12 @@ const mongoose = require('mongoose');
 const Person  = require('./models/person');
 const Channel  = require('./models/channel');
 const Message  = require('./models/message');
-const PORT = 8080;
+const Student  = require('./models/student');
+const Teacher = require('./models/teacher');
+const NewChannel = require('./models/newChannel');
+const PORT = 8080;  
 
-const STATIC_CHANNELS = ["GLOBAL_NOTIFICATIONS", "GLOBAL_CHAT"]
+// const STATIC_CHANNELS = ["GLOBAL_NOTIFICATIONS", "GLOBAL_CHAT"]
 var cors = require("cors")
 var io = require("socket.io")(http,{
   cors: {
@@ -19,7 +22,74 @@ var io = require("socket.io")(http,{
 //2 - 60606dc3193b9388605d5bde
 //3 - 60606df458a5b659c0785ae2
 mongooseConn.db();
+
+
+/* newIDS */
+//1 :6076b62c83755ac740f75c37
+//2 :6076b669fbbb13afb8ef287a
+//3 :6076b69ddb5a5f6ae8431664
+//4 :6076b6b481479bafdc6318ad
+//1.2 :6076b71c6d2ffe7cbc0bf60d
+//1.3 :6076bec52b8d653618adb65b
+//3.4 :6076bd8f1bcd65c8cca59b67
+
 setTimeout(async() => {
+ 
+
+
+
+
+
+  // const mainPerson = await Teacher.findOne({username:'3'});
+ 
+  // Student.findOne({username:'1'},async(err,currPerson)=>{
+  //   if(err){
+  //     console.log("Error occured");
+  //   } else{
+  //     NewChannel.findOne({name:'1.3'},async(err,currChannel)=>{
+  //       if(err){
+  //         console.log("Error occured");
+  //       }else{
+
+  //         channelInfo = {
+  //           person:currPerson._id,
+  //           chat:currChannel._id,
+  //           onModel:'Student'
+  //         }
+  //         console.log(currPerson,channelInfo,mainPerson);
+  //         mainPerson.channels.push(channelInfo);
+  //         const result = await mainPerson.save();
+  //         console.log("Saved result is:",result);
+
+  //       }
+  //     }) 
+  //   }
+  // })
+  // Teacher.findOne({ username:'3' })
+  //       .populate('channels.person')
+  //       .exec((err,newStudent)=>{
+  //         if(err){
+  //           console.log(err);
+  //         } else{
+  //           console.log("The execution is done: ",newStudent.channels[1].person);
+  //         }
+  //       })
+
+
+
+
+  // const channel = new NewChannel({
+  //     name:'1.3',
+  //     messageList:[]
+  //   })
+  //   try{
+  //      const result =  await channel.save();
+  //       console.log("yes user is saved",result);
+  //     } catch(err){
+  //       console.log("Error:",err);
+  //     }
+
+
 
     // dbConnection.close();
     // const channel = new Channel({
@@ -158,14 +228,14 @@ setTimeout(async() => {
   //   console.log("The message could not be saved");
   // }
 
-  Channel.
-  findOne({ name:'channel-1.3' }).
-  populate('messageList').
-  exec(function (err, channel) {
-    if (err) console.log("Error occured");
-    console.log('The object is :', channel);
-    // res.json({messageList:channel.messageList});
-  });
+  // Channel.
+  // findOne({ name:'channel-1.3' }).
+  // populate('messageList').
+  // exec(function (err, channel) {
+  //   if (err) console.log("Error occured");
+  //   console.log('The object is :', channel);
+  //   // res.json({messageList:channel.messageList});
+  // });
 
   },1000);
   
@@ -186,20 +256,33 @@ setTimeout(async() => {
 
 let channels = [{id: 1, name: "channel-1.3", participants: ["1","3"],messageList:[]},{id: 2, name: "channel-1.2", participants: ["1","2"],messageList:[{ id: 2, text: 'hyyy', senderName: '1' }]},{id: 3, name: "channel-2.3", participants: ["2","3"],messageList:[]}]
 app.get('/getChannels',function(req,res){
-  console.log("here checking for params:",req.query.username);
+  console.log("here checking for params:",req.query.username,req.query.category);
   // let userChannel = channels.filter((item)=>{
   //   if(item.participants.includes(req.query.username)){
   //     return item;
   //   }
   // })
-  Person.
-  findOne({ username: req.query.username }).
-  populate('channels').
-  exec(function (err, person) {
-    if (err) console.log("Error occured");
-    console.log('The object is :', person.channels);
-    res.json({info:person.channels});
-  });
+  if(req.query.category == "Student"){
+      Student.
+    findOne({ username: req.query.username }).
+    populate('channels.person').
+    exec(function (err, person) {
+      if (err) console.log("Error occured");
+      console.log('The object is :', person.channels);
+      res.json({info:person.channels});
+    });
+  } else{
+      Teacher.
+    findOne({ username: req.query.username }).
+    populate('channels.person').
+    exec(function (err, person) {
+      if (err) console.log("Error occured");
+      console.log('The object is :', person.channels);
+      res.json({info:person.channels});
+    });
+  }
+
+  
   // console.log(userChannel);
   // res.json({info:userChannels});
 })
@@ -212,10 +295,8 @@ app.get("/getMessages",function(req,res){
   //     res.json({messageList:item.messageList});
   //   }
   // })
-  Channel.
-  findOne({ _id: mongoose.Types.ObjectId(req.query.id) }).
-  populate('messageList').
-  exec(function (err, channel) {
+  NewChannel.
+  findOne({ _id: mongoose.Types.ObjectId(req.query.id) },function (err, channel) {
     if (err) console.log("Error occured");
     console.log('The object is :', channel);
     res.json({messageList:channel.messageList});
@@ -230,7 +311,7 @@ http.listen(PORT, () => {
 
 io.on("connection", (socket) => {
     console.log("new client connected")
-    socket.emit("connection", null)
+    socket.emit("connection",null)
 
     socket.on("connectMe",async(data)=>{
       console.log("New Joining data is:",data)
@@ -247,11 +328,20 @@ io.on("connection", (socket) => {
       //   socket.join("foo3");
       //   console.log("New user:3")
       // }
-      const person = await Person.findOne({username:data.username});
-      person.channels.map((itemID)=>{
-        socket.join("foo"+itemID);
-        console.log("Checking for joining :",itemID);
-      })
+      if(data.category == "Student"){
+        const student = await Student.findOne({username:data.username});
+        student.channels.map((itemID)=>{
+          socket.join("foo"+itemID.chat);
+          console.log("Checking for joining :",itemID.chat);
+        })
+      } else{
+        const teacher = await Teacher.findOne({username:data.username});
+        teacher.channels.map((itemID)=>{
+          socket.join("foo"+itemID.chat);
+          console.log("Checking for joining :",itemID.chat);
+        })
+      }
+      
 
     })
 
@@ -263,18 +353,18 @@ io.on("connection", (socket) => {
       //   }
       // })
 
-      const newMsg = new Message({
-        username:data.username,
-        text:data.text
-      })
+      const newMsg = {
+        text:data.text,
+        username:data.username
+      }
 
       try{
-        const result = await newMsg.save();
-        Channel.findOne({_id:mongoose.Types.ObjectId(data.id)},async(err,newMsgChannel)=>{
+        // const result = await newMsg.save();
+        NewChannel.findOne({_id:mongoose.Types.ObjectId(data.id)},async(err,newMsgChannel)=>{
             if(err){
               console.log("Error occured message cannot be saved");
             } else{
-              newMsgChannel.messageList.push(result._id);
+              newMsgChannel.messageList.push(newMsg);
               try{
                 await newMsgChannel.save();
                 io.to("foo"+data.id).emit("newMsg",data);
@@ -291,3 +381,6 @@ io.on("connection", (socket) => {
     })
 
 })
+
+
+//User.findOne({id: req.body.myId}).select({ Friends: {$elemMatch: {id: req.body.id}}})

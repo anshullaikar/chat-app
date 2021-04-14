@@ -9,12 +9,13 @@ class App extends Component {
   state = {
     showChat:false,
     username:"",
-    socket:null
+    socket:null,
+    category:""
   }
 
   componentDidMount = ()=>{
     let socket = socketClient(SERVER)
-    socket.on("connection", ()=> {
+    socket.on("connection", (data)=> {
       console.log("I'm connected with the back-end")
       this.setState({socket:socket});
       
@@ -24,7 +25,9 @@ class App extends Component {
   
   startChatting = ()=>{
     console.log("yess getting username");
-    this.setState({showChat:true})
+    const parts = this.state.username.split("-");
+    console.log(parts);
+    this.setState({username:parts[0],category:parts[1],showChat:true})
   }
 
   getUserName = (e)=>{
@@ -36,7 +39,7 @@ render(){
 
   return (
     <div className="App">
-      {(this.state.showChat)?(<Chat username = {this.state.username} socket={this.state.socket}/>):
+      {(this.state.showChat)?(<Chat username = {this.state.username} socket={this.state.socket} category = {this.state.category}/>):
       (<div>
         <h1>Enter UserID:</h1>
         <input type="text" name="userID" onChange={this.getUserName} />

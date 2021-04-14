@@ -6,7 +6,7 @@ export class ChannelList extends React.Component{
     checkChannel2 = (msgID,e)=>{
         console.log("Yes changing channel:",msgID);
         this.props.channels.map(c=>{
-            if(c._id === msgID){
+            if(c.person._id === msgID){
                 this.props.changeCurrentChat(c);
             }
         })
@@ -18,7 +18,7 @@ export class ChannelList extends React.Component{
         if (this.props.channels){
             list = this.props.channels.map(
                 c => 
-                (<Channel key={c._id} id={c._id} name={c.name} participants={c.participants} onClick = {this.checkChannel2.bind(this,c._id)}/>))
+                (<Channel key={c.person._id} id={c.person._id} name={c.person.username} participants={2} onClick = {this.checkChannel2.bind(this,c.person._id)}/>))
         }
 
         return (

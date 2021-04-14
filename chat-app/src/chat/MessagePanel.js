@@ -11,10 +11,10 @@ export class MessagePanel extends Component {
         
         console.log("Here checking for socket:",this.props.socket);
         console.log("Here checking for username:",this.props.username);
-        this.props.socket.emit("connectMe",{username:this.props.username})
+        this.props.socket.emit("connectMe",{username:this.props.username,category:this.props.category})
         this.props.socket.on("newMsg",(data)=>{
             console.log("Here checking for new Data:",data);
-            if(data.id == this.props.currentChat._id){
+            if(data.id == this.props.currentChat.chat){
                 
                 this.setState({text:""});
                 this.props.updateMessage(data);
@@ -30,7 +30,7 @@ export class MessagePanel extends Component {
     sendMsg = ()=>{
         console.log("Here sending message");
         let data = {
-            id:this.props.currentChat._id,
+            id:this.props.currentChat.chat,
             text:this.state.text,
             username:this.props.username
         }
@@ -41,8 +41,8 @@ export class MessagePanel extends Component {
 
 
     showChats = ()=>{
-        console.log("Showing",this.props.currentChat.id);
-        fetch('/getMessages?id='+this.props.currentChat.id).
+        console.log("Showing",this.props.currentChat.chat);
+        fetch('/getMessages?id='+this.props.currentChat.chat).
         then(res=>res.json())
         .then((result)=>{
             console.log("heyyyy",result);
@@ -69,7 +69,8 @@ export class MessagePanel extends Component {
         }
         return (
             <div className = "messages-panel">
-                <h1>{this.props.currentChat.name}</h1>
+                <h1>{this.props.currentChat.person.username}</h1>
+                {/* <h1>Hey Chat</h1> */}
                 <div className="messages-list">{list}</div>
                 <div className="messages-input">
                     <input type="text" name = "msg" onChange = {this.changeText} value = {this.state.text}/>
